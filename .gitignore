@@ -11,4 +11,5 @@ __pycache__/
 # RAG Data / Index (voorkom dat grote datasets en indices naar GitHub gaan)
 bronnen/
 
-
+# Private SSH Keys and credentials
+id_tsi_*
