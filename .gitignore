@@ -1,0 +1,15 @@
+# Omgevingsvariabelen en geheimen (belangrijk: deel je .env nooit via GitHub!)
+.env
+
+# MacOS bestanden
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+
+# RAG Data / Index (voorkom dat grote datasets en indices naar GitHub gaan)
+bronnen/
+index/
+verwerkt/
+scratch/

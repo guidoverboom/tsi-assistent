@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategisch RAG Adviseur - Cedris</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #005596;
+            --accent: #EBF1F7;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            line-height: 1.6; 
+            padding: 40px; 
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 50px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .sob-title { font-size: 2.8rem; font-weight: 700; color: var(--primary); letter-spacing: -1.5px; }
+        .label {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .meta-top { text-align: right; color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Input Card */
+        .input-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 85, 150, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 0 32px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 85, 150, 0.3);
+        }
+
+        button:active { transform: translateY(0); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Results Area */
+        .results-area {
+            display: none;
+        }
+
+        /* Analysis Box Style (from Startfoto) */
+        .analysis-box {
+            background: #F1F5F9;
+            color: var(--text-main);
+            padding: 35px;
+            border-radius: 24px;
+            margin-top: 30px;
+            border-left: 8px solid var(--primary);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .analysis-box h3 { 
+            font-size: 0.9rem; 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.2px; 
+            color: var(--primary); 
+            font-weight: 700;
+        }
+
+        /* Styled Markdown Content */
+        .markdown-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            margin: 25px 0 15px 0;
+            color: var(--text-main);
+        }
+
+        .markdown-content p { margin-bottom: 16px; }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin-bottom: 16px;
+            padding-left: 25px;
+        }
+
+        .markdown-content li { margin-bottom: 8px; }
+
+        .markdown-content strong { color: var(--primary); font-weight: 700; }
+
+        /* Source List Style */
+        .source-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px 32px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+
+        .doc-list { list-style: none; margin-top: 15px; }
+        .doc-item { 
+            padding: 12px 0; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+        .doc-item:last-child { border-bottom: none; }
+        
+        .badge { 
+            background: var(--accent); 
+            color: var(--primary); 
+            padding: 4px 12px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            white-space: nowrap;
+        }
+
+        .loader {
+            display: none;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce { to { transform: translateY(-10px); opacity: 0.3; } }
+
+        .example-questions {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .example-chip {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .example-chip:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <span class="label" style="color: var(--primary)">AI Advisor v1.2</span>
+            <h1 class="sob-title">Strategisch RAG Adviseur</h1>
+        </div>
+        <div class="meta-top">
+            Cedris Product Development<br>
+            Toekomstbestendige Sociale Infrastructuur
+        </div>
+    </header>
+
+    <div class="input-card">
+        <span class="label">Stel een Vraag</span>
+        <div class="input-group">
+            <input type="text" id="questionInput" placeholder="Bijv: 'Vergelijk de koersnota's van Maastricht en Enschede...'" onkeydown="if(event.key==='Enter') askQuestion()">
+            <button id="sendBtn" onclick="askQuestion()">Vraag Advies</button>
+        </div>
+
+        <div class="example-questions">
+            <div class="example-chip" onclick="setQuestion('Wat zijn de belangrijkste speerpunten voor de komende 5 jaar?')">Speerpunten 2025-2030</div>
+            <div class="example-chip" onclick="setQuestion('Hoe wordt de mens centraal gesteld in het nieuwe beleid?')">Mens Centraal</div>
+            <div class="example-chip" onclick="setQuestion('Vergelijk de plannen van de verschillende organisaties.')">Vergelijk Plannen</div>
+        </div>
+    </div>
+
+    <div class="loader" id="loader">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <div class="results-area" id="resultsArea">
+        <div class="analysis-box">
+            <h3>Fact-based Strategisch Advies</h3>
+            <div id="answerText" class="markdown-content"></div>
+        </div>
+
+        <div class="source-card">
+            <span class="label">Geraadpleegde Bronnen</span>
+            <ul class="doc-list" id="sourceList">
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:5050/api/query';
+
+    function setQuestion(text) {
+        document.getElementById('questionInput').value = text;
+        askQuestion();
+    }
+
+    const titleMap = {
+        "MTB_Maastricht_Heuvelland_-_Koersnota_(openbaar).md": "MTB Maastricht-Heuvelland | Koersnota Toekomstig SOB (2025)",
+        "DCW_kadernota_2025-2035.md": "DCW Enschede | Kadernota 2025-2035",
+        "AMFORS~1.md": "Amfors Groep Amersfoort | Koersnota Transitie",
+        "Stark_Toekomstvisie.md": "Stark Hoogeveen | Toekomstvisie Stark (2025)"
+    };
+
+    async function askQuestion() {
+        const input = document.getElementById('questionInput');
+        const question = input.value.trim();
+        if (!question) return;
+
+        const btn = document.getElementById('sendBtn');
+        const loader = document.getElementById('loader');
+        const resultsArea = document.getElementById('resultsArea');
+        const answerCard = document.getElementById('answerText');
+        const sourceList = document.getElementById('sourceList');
+
+        // UI Reset
+        btn.disabled = true;
+        loader.style.display = 'flex';
+        resultsArea.style.display = 'none';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                answerCard.innerHTML = `<p style="color: #ef4444"><strong>Foutmelding:</strong> ${data.error}</p>`;
+            } else {
+                // Render Markdown
+                answerCard.innerHTML = marked.parse(data.answer);
+                
+                // Update sources with Titles
+                sourceList.innerHTML = data.sources.map(s => `
+                    <li class="doc-item">
+                        <span class="badge">Beleidsstuk</span>
+                        <div style="font-weight: 600;">${titleMap[s] || s}</div>
+                    </li>
+                `).join('');
+            }
+
+            resultsArea.style.display = 'block';
+        } catch (err) {
+            answerCard.innerHTML = `<p style="color: #ef4444"><strong>Verbindingsfout:</strong> Kan geen contact maken met de server (server.py). Controleer of de backend draait op poort 5050.</p>`;
+            resultsArea.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
