@@ -10,6 +10,4 @@ __pycache__/
 
 # RAG Data / Index (voorkom dat grote datasets en indices naar GitHub gaan)
 bronnen/
-index/
-verwerkt/
-scratch/
+
